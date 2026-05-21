@@ -1,3 +1,3 @@
 # dbms-game_tracking
+<img width="1862" height="1005" alt="image" src="https://github.com/user-attachments/assets/5a1906ec-3b54-4af6-917d-f8a47f644709" />
 
-<img width="1862" height="1005" alt="image" src="https://github.com/user-attachments/assets/dcf5d382-d997-44de-a0fd-0e1d32c78ff5" />
