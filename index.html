@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gaming Tournament Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --page:     #f5f4f0;
+  --surface:  #ffffff;
+  --surface2: #f9f8f5;
+  --navy:     #0d1b2e;
+  --navy2:    #162338;
+  --rule:     #e4e2dc;
+  --rule2:    #d4d1c8;
+  --ink:      #1a1a1a;
+  --ink2:     #3d3d3a;
+  --muted:    #7a7870;
+  --faint:    #b0ada4;
+  --accent:   #1a4fa8;
+  --accent-l: #e8eef8;
+  --green:    #1a6b3c;
+  --green-l:  #e6f2eb;
+  --red:      #b91c1c;
+  --red-l:    #fce8e8;
+  --amber:    #92400e;
+  --amber-l:  #fef3e2;
+  --gold:     #b7860d;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--page);color:var(--ink);font-family:'Figtree',sans-serif;min-height:100vh;font-size:14px;line-height:1.5}
+.mono{font-family:'DM Mono',monospace}
+
+/* ── HEADER ── */
+header{background:var(--navy);position:sticky;top:0;z-index:100}
+.header-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:56px;padding:0 1.5rem}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:30px;height:30px;background:#1a4fa8;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;border:1px solid rgba(255,255,255,0.12)}
+.logo-text{font-weight:700;font-size:15px;color:#fff;letter-spacing:0.3px}
+.logo-sep{color:rgba(255,255,255,0.2);margin:0 2px;font-size:13px}
+.logo-sub{font-size:11px;color:rgba(255,255,255,0.4);font-weight:400;letter-spacing:0.5px}
+nav{display:flex;gap:1px}
+nav button{background:none;border:none;color:rgba(255,255,255,0.55);font-family:'Figtree',sans-serif;font-size:13px;font-weight:500;padding:8px 14px;border-radius:5px;cursor:pointer;transition:all .15s;letter-spacing:0.2px}
+nav button:hover{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.85)}
+nav button.active{background:rgba(255,255,255,0.1);color:#fff}
+
+/* ── SEASON BANNER ── */
+.season-bar{background:var(--navy2);border-bottom:1px solid rgba(255,255,255,0.06)}
+.season-inner{max-width:1200px;margin:0 auto;padding:0 1.5rem;height:32px;display:flex;align-items:center;gap:2rem}
+.season-tag{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;font-weight:500}
+.season-val{font-size:11px;color:rgba(255,255,255,0.7);font-weight:600}
+.season-dot{width:4px;height:4px;background:rgba(255,255,255,0.15);border-radius:50%}
+
+/* ── MAIN ── */
+main{max-width:1200px;margin:0 auto;padding:1.5rem}
+.page{display:none}.page.active{display:block;animation:fadeUp .2s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── STAT CARDS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:1.5rem}
+.stat-card{background:var(--surface);padding:1.25rem 1.5rem;transition:background .15s}
+.stat-card:hover{background:var(--surface2)}
+.stat-label{font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--faint);margin-bottom:10px}
+.stat-value{font-size:32px;font-weight:700;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.stat-value.blue{color:var(--accent)}
+.stat-sub{font-size:11px;color:var(--muted);margin-top:5px}
+.stat-accent{display:inline-block;width:2px;height:28px;border-radius:1px;vertical-align:middle;margin-right:10px}
+.stat-accent.a1{background:var(--accent)}
+.stat-accent.a2{background:#7c3aed}
+.stat-accent.a3{background:var(--gold)}
+.stat-accent.a4{background:var(--green)}
+
+/* ── PAGE HEADER ── */
+.page-header{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:0.75rem;border-bottom:2px solid var(--navy)}
+.page-title{font-size:17px;font-weight:700;color:var(--ink);letter-spacing:-0.2px}
+.page-meta{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--rule);padding:3px 8px;border-radius:4px}
+
+/* ── TABLE (league table style) ── */
+.league-table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.league-table thead tr{background:var(--navy);border-bottom:none}
+.league-table th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.5)}
+.league-table th.num{text-align:center}
+.league-table tbody tr{border-bottom:1px solid var(--rule);transition:background .12s}
+.league-table tbody tr:last-child{border-bottom:none}
+.league-table tbody tr:hover{background:#f7f6f2}
+.league-table td{padding:11px 14px;font-size:13px;color:var(--ink2)}
+.league-table td.num{text-align:center;font-family:'DM Mono',monospace;font-size:13px;color:var(--ink2)}
+.league-table td.pos{text-align:center;font-weight:700;font-size:15px;color:var(--ink);width:44px}
+.league-table td.team-name{font-weight:600;color:var(--ink);font-size:13px}
+.league-table td.win-cell{color:var(--green);font-family:'DM Mono',monospace;text-align:center;font-weight:600}
+.league-table td.loss-cell{color:var(--red);font-family:'DM Mono',monospace;text-align:center}
+.pos-indicator{display:inline-block;width:3px;height:14px;border-radius:1.5px;margin-right:8px;vertical-align:middle}
+.pos-1{background:var(--gold)}
+.pos-2{background:#94a3b8}
+.pos-3{background:#c2844a}
+.pos-other{background:var(--rule2)}
+.qualify-zone td:first-child{border-left:3px solid var(--accent)}
+.dropzone td:first-child{border-left:3px solid var(--red)}
+
+/* ── CARDS ── */
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+
+/* ── PLAYER TABLE ── */
+.rank-badge{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:0.8px;text-transform:uppercase;font-family:'DM Mono',monospace}
+.rank-badge.Diamond{background:#f0ebff;color:#5b21b6;border:1px solid #d8b4fe}
+.rank-badge.Platinum{background:var(--accent-l);color:#1e3a8a;border:1px solid #bfdbfe}
+.rank-badge.Gold{background:#fefce8;color:#92400e;border:1px solid #fde68a}
+.rank-badge.Silver{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+.rank-badge.Bronze{background:#fff7ed;color:#9a3412;border:1px solid #fed7aa}
+
+/* ── STATUS ── */
+.status{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:3px;letter-spacing:0.8px;text-transform:uppercase;font-family:'DM Mono',monospace}
+.status.Completed{background:var(--green-l);color:var(--green);border:1px solid #bbf7d0}
+.status.Ongoing{background:var(--accent-l);color:var(--accent);border:1px solid #bfdbfe}
+.status.Upcoming{background:var(--amber-l);color:var(--amber);border:1px solid #fde68a}
+
+/* ── SEARCH ── */
+.toolbar{display:flex;gap:0.75rem;margin-bottom:1rem}
+.toolbar input,.toolbar select{background:var(--surface);border:1px solid var(--rule2);color:var(--ink);font-family:'Figtree',sans-serif;font-size:13px;padding:8px 12px;border-radius:6px;outline:none;transition:border-color .15s}
+.toolbar input{flex:1}
+.toolbar input::placeholder{color:var(--faint)}
+.toolbar input:focus,.toolbar select:focus{border-color:#93acd4}
+
+/* ── TOURNAMENT GRID ── */
+.tour-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.tour-card{background:var(--surface);padding:1.25rem;transition:background .15s}
+.tour-card:hover{background:var(--surface2)}
+.tour-card-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.tour-id{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace}
+.tour-name{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:6px;line-height:1.35}
+.tour-game{font-size:12px;color:var(--muted);margin-bottom:4px}
+.tour-dates{font-size:11px;color:var(--faint);font-family:'DM Mono',monospace;margin-bottom:12px}
+.tour-prize{font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-0.5px}
+.tour-prize span{font-size:12px;color:var(--muted);font-weight:400;margin-left:3px}
+.tour-divider{height:1px;background:var(--rule);margin:10px 0}
+
+/* ── MATCH CARDS (fixture-style) ── */
+.fixture{background:var(--surface);border:1px solid var(--rule);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:background .15s}
+.fixture:hover{background:var(--surface2)}
+.fixture-header{background:var(--surface2);border-bottom:1px solid var(--rule);padding:6px 14px;display:flex;align-items:center;justify-content:space-between}
+.fixture-tourney{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.fixture-date{font-size:10px;color:var(--faint);font-family:'DM Mono',monospace}
+.fixture-body{padding:12px 20px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1rem}
+.fix-team{font-size:14px;font-weight:600;color:var(--ink2)}
+.fix-team.home{text-align:right}
+.fix-team.away{text-align:left}
+.fix-team.winner{color:var(--accent);font-weight:700}
+.fix-score{display:flex;align-items:center;gap:6px;justify-content:center}
+.fix-num{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;min-width:28px;text-align:center;line-height:1}
+.fix-num.win-score{color:var(--green);font-weight:700}
+.fix-num.loss-score{color:var(--muted)}
+.fix-dash{color:var(--rule2);font-size:18px;font-weight:300}
+.fixture-footer{padding:6px 14px;border-top:1px solid var(--rule);display:flex;align-items:center;gap:6px}
+.fix-venue{font-size:11px;color:var(--faint)}
+.fix-dot{color:var(--rule2)}
+
+/* ── FORM ── */
+.form-section{padding:1.25rem}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group.full{grid-column:1/-1}
+label{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=email],select{background:var(--surface);border:1px solid var(--rule2);color:var(--ink);font-family:'Figtree',sans-serif;font-size:13px;padding:9px 12px;border-radius:6px;outline:none;transition:border-color .15s;width:100%}
+input:focus,select:focus{border-color:#93acd4}
+.form-footer{padding:0 1.25rem 1.25rem;display:flex;justify-content:flex-end;gap:8px}
+.btn{font-family:'Figtree',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:6px;border:none;cursor:pointer;transition:all .15s;letter-spacing:0.2px}
+.btn-primary{background:var(--navy);color:#fff}
+.btn-primary:hover{background:var(--navy2)}
+.btn-danger{background:var(--red-l);color:var(--red);border:1px solid #fca5a5}
+.btn-danger:hover{background:#fee2e2}
+.section-divider{border:none;border-top:1px solid var(--rule);margin:1.5rem 0}
+
+/* ── DASHBOARD GRID ── */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem}
+.dash-card-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:12px 16px;border-bottom:1px solid var(--rule)}
+.mini-lb-row{display:grid;grid-template-columns:32px 1fr auto;align-items:center;gap:0.75rem;padding:10px 16px;border-bottom:1px solid var(--rule);font-size:13px}
+.mini-lb-row:last-child{border-bottom:none}
+.mini-lb-pos{font-size:12px;font-weight:700;color:var(--faint);text-align:center}
+.mini-lb-team{font-weight:600;color:var(--ink2)}
+.mini-lb-stats{display:flex;gap:12px;font-family:'DM Mono',monospace;font-size:12px}
+.mini-lb-w{color:var(--green);font-weight:600}
+.mini-lb-pts{color:var(--ink);font-weight:600}
+.prize-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--rule);font-size:13px}
+.prize-row:last-child{border-bottom:none}
+.prize-label{flex:0 0 130px;color:var(--ink2);font-weight:500;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prize-bar-wrap{flex:1;height:5px;background:var(--rule);border-radius:3px;overflow:hidden}
+.prize-bar-fill{height:100%;border-radius:3px;transition:width .6s ease}
+.prize-amount{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:52px;text-align:right}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--navy);color:#fff;padding:10px 18px;border-radius:7px;font-size:13px;font-weight:500;z-index:999;transform:translateY(60px);opacity:0;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,0.15)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.err{background:var(--red)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🎮</div>
+      <span class="logo-text">GTTracker</span>
+      <span class="logo-sep">/</span>
+      <span class="logo-sub">Gaming Tournament Tracker</span>
+    </div>
+    <nav>
+      <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+      <button onclick="showPage('leaderboard',this)">Leaderboard</button>
+      <button onclick="showPage('players',this)">Players</button>
+      <button onclick="showPage('tournaments',this)">Tournaments</button>
+      <button onclick="showPage('matches',this)">Matches</button>
+      <button onclick="showPage('register',this)">Register</button>
+    </nav>
+  </div>
+</header>
+
+<div class="season-bar">
+  <div class="season-inner">
+    <span class="season-tag">Season</span>
+    <span class="season-val">2025–26</span>
+    <span class="season-dot"></span>
+    <span class="season-tag">Tournaments</span>
+    <span class="season-val">10</span>
+    <span class="season-dot"></span>
+    <span class="season-tag">Prize Pool</span>
+    <span class="season-val">$845,000</span>
+    <span class="season-dot"></span>
+    <span class="season-tag">Status</span>
+    <span class="season-val" style="color:#6ee7b7">Live</span>
+  </div>
+</div>
+
+<main>
+
+<!-- ── DASHBOARD ── -->
+<div id="dashboard" class="page active">
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Registered Players</div>
+      <div style="display:flex;align-items:center">
+        <span class="stat-accent a1"></span>
+        <span class="stat-value blue" id="s-players">10</span>
+      </div>
+      <div class="stat-sub">Across all teams</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Active Teams</div>
+      <div style="display:flex;align-items:center">
+        <span class="stat-accent a2"></span>
+        <span class="stat-value">10</span>
+      </div>
+      <div class="stat-sub">Competing squads</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Total Prize Pool</div>
+      <div style="display:flex;align-items:center">
+        <span class="stat-accent a3"></span>
+        <span class="stat-value">$845K</span>
+      </div>
+      <div class="stat-sub">10 tournaments</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Matches Played</div>
+      <div style="display:flex;align-items:center">
+        <span class="stat-accent a4"></span>
+        <span class="stat-value">10</span>
+      </div>
+      <div class="stat-sub">20 score records</div>
+    </div>
+  </div>
+
+  <div class="dash-grid">
+    <div class="card">
+      <div class="dash-card-title">Top 5 — Standings</div>
+      <div id="dash-standings"></div>
+    </div>
+    <div class="card">
+      <div class="dash-card-title">Prize Distribution</div>
+      <div id="dash-prizes"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── LEADERBOARD ── -->
+<div id="leaderboard" class="page">
+  <div class="page-header">
+    <span class="page-title">Full Standings</span>
+    <span class="page-meta">VIEW · Leaderboard</span>
+  </div>
+  <table class="league-table">
+    <thead>
+      <tr>
+        <th style="width:44px">Pos</th>
+        <th>Team</th>
+        <th class="num">P</th>
+        <th class="num">W</th>
+        <th class="num">L</th>
+        <th class="num">Pts</th>
+        <th class="num">Avg</th>
+      </tr>
+    </thead>
+    <tbody id="lb-body"></tbody>
+  </table>
+  <div style="margin-top:10px;display:flex;gap:1.5rem;font-size:11px;color:var(--muted);padding:0 4px">
+    <span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:3px;height:12px;border-radius:1px;background:var(--accent)"></span> Qualification zone</span>
+    <span style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:3px;height:12px;border-radius:1px;background:var(--red)"></span> Bottom zone</span>
+  </div>
+</div>
+
+<!-- ── PLAYERS ── -->
+<div id="players" class="page">
+  <div class="page-header">
+    <span class="page-title">Player Registry</span>
+    <span class="page-meta">VIEW · Player_Profile</span>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="player-search" placeholder="Search username or name…" oninput="filterPlayers()">
+    <select id="rank-filter" onchange="filterPlayers()" style="width:150px">
+      <option value="">All Ranks</option>
+      <option>Diamond</option><option>Platinum</option>
+      <option>Gold</option><option>Silver</option><option>Bronze</option>
+    </select>
+    <select id="country-filter" onchange="filterPlayers()" style="width:150px">
+      <option value="">All Countries</option>
+    </select>
+  </div>
+  <table class="league-table">
+    <thead>
+      <tr>
+        <th style="width:40px">#</th>
+        <th>Username</th>
+        <th>Full Name</th>
+        <th>Country</th>
+        <th>Rank</th>
+        <th>Team</th>
+        <th>Role</th>
+      </tr>
+    </thead>
+    <tbody id="players-body"></tbody>
+  </table>
+</div>
+
+<!-- ── TOURNAMENTS ── -->
+<div id="tournaments" class="page">
+  <div class="page-header">
+    <span class="page-title">Tournaments</span>
+    <span class="page-meta">10 events · $845,000 pool</span>
+  </div>
+  <div class="tour-grid" id="tour-grid"></div>
+</div>
+
+<!-- ── MATCHES ── -->
+<div id="matches" class="page">
+  <div class="page-header">
+    <span class="page-title">Results &amp; Fixtures</span>
+    <span class="page-meta">INNER JOIN · Match + Team + Tournament</span>
+  </div>
+  <div id="matches-list"></div>
+</div>
+
+<!-- ── REGISTER ── -->
+<div id="register" class="page">
+  <div class="page-header">
+    <span class="page-title">Register Player</span>
+    <span class="page-meta">INSERT INTO Player</span>
+  </div>
+  <div class="card">
+    <div class="form-section">
+      <div class="form-grid">
+        <div class="form-group"><label>Username</label><input type="text" id="reg-username" placeholder="e.g. xShadow99"></div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="e.g. Ali Hassan"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="player@mail.com"></div>
+        <div class="form-group"><label>Country</label><input type="text" id="reg-country" placeholder="e.g. Pakistan"></div>
+        <div class="form-group full"><label>Rank Tier</label>
+          <select id="reg-rank">
+            <option>Bronze</option><option>Silver</option>
+            <option selected>Gold</option><option>Platinum</option><option>Diamond</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer"><button class="btn btn-primary" onclick="registerPlayer()">Register Player</button></div>
+  </div>
+
+  <hr class="section-divider">
+
+  <div class="page-header">
+    <span class="page-title">Player Management</span>
+    <span class="page-meta">UPDATE / DELETE</span>
+  </div>
+  <div class="card">
+    <div class="form-section">
+      <div class="form-grid">
+        <div class="form-group"><label>Select Player</label>
+          <select id="edit-player" onchange="loadPlayer()"><option value="">— choose player —</option></select>
+        </div>
+        <div class="form-group"><label>New Rank</label>
+          <select id="edit-rank">
+            <option>Bronze</option><option>Silver</option><option>Gold</option>
+            <option>Platinum</option><option>Diamond</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn btn-danger" onclick="deletePlayer()">Delete Player</button>
+      <button class="btn btn-primary" onclick="updatePlayer()">Update Rank</button>
+    </div>
+  </div>
+</div>
+
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────
+const db = {
+  players:[
+    {id:1,username:'xShadow',  full_name:'Ali Hassan',    email:'ali@mail.com',    country:'Pakistan',  rank:'Diamond'},
+    {id:2,username:'BladeX',   full_name:'Bilal Khan',    email:'bilal@mail.com',  country:'Pakistan',  rank:'Diamond'},
+    {id:3,username:'FireStorm',full_name:'Sara Ahmed',    email:'sara@mail.com',   country:'Pakistan',  rank:'Gold'},
+    {id:4,username:'NightOwl', full_name:'Umar Farooq',   email:'umar@mail.com',   country:'India',     rank:'Gold'},
+    {id:5,username:'ZeroGrav', full_name:'Rania Siddiq',  email:'rania@mail.com',  country:'UAE',       rank:'Silver'},
+    {id:6,username:'GhostByte',full_name:'Hamza Malik',   email:'hamza@mail.com',  country:'Pakistan',  rank:'Platinum'},
+    {id:7,username:'TurboX',   full_name:'Kamran Shah',   email:'kamran@mail.com', country:'Pakistan',  rank:'Bronze'},
+    {id:8,username:'LazorEye', full_name:'Farrukh Aziz',  email:'faz@mail.com',    country:'Uzbekistan',rank:'Diamond'},
+    {id:9,username:'StormRider',full_name:'Noor Bibi',    email:'noor@mail.com',   country:'Pakistan',  rank:'Silver'},
+    {id:10,username:'VoidWalker',full_name:'Tariq Mehmood',email:'tariq@mail.com', country:'Pakistan',  rank:'Gold'},
+  ],
+  teams:[
+    {id:1,name:'Alpha Squad'},{id:2,name:'Blade Runners'},{id:3,name:'Storm Chasers'},
+    {id:4,name:'Night Wolves'},{id:5,name:'Zero Protocol'},{id:6,name:'Ghost Unit'},
+    {id:7,name:'Turbo Force'},{id:8,name:'Lazor Squad'},{id:9,name:'Storm Brigade'},
+    {id:10,name:'Void Breakers'}
+  ],
+  teamPlayers:[
+    {pid:1,tid:1,role:'Fragger'},{pid:2,tid:2,role:'IGL'},{pid:3,tid:3,role:'Support'},
+    {pid:4,tid:4,role:'Sniper'},{pid:5,tid:5,role:'Entry'},{pid:6,tid:6,role:'Lurker'},
+    {pid:7,tid:7,role:'Fragger'},{pid:8,tid:8,role:'AWPer'},{pid:9,tid:9,role:'Support'},
+    {pid:10,tid:10,role:'IGL'},{pid:1,tid:6,role:'Sub'},{pid:3,tid:1,role:'Support'},
+    {pid:4,tid:2,role:'Sniper'},
+  ],
+  tournaments:[
+    {id:1,name:'PUBG Winter Cup 2025',    game:'PUBG Mobile',    start:'2025-01-10',end:'2025-01-20',prize:50000, status:'Completed'},
+    {id:2,name:'Valorant Spring Open',    game:'Valorant',       start:'2025-03-05',end:'2025-03-15',prize:75000, status:'Completed'},
+    {id:3,name:'FIFA Champions League',   game:'FIFA 25',        start:'2025-04-01',end:'2025-04-10',prize:30000, status:'Completed'},
+    {id:4,name:'COD Summer Showdown',     game:'Call of Duty MW',start:'2025-06-15',end:'2025-06-25',prize:100000,status:'Completed'},
+    {id:5,name:'PUBG Pro Series',         game:'PUBG Mobile',    start:'2025-08-01',end:'2025-08-12',prize:80000, status:'Completed'},
+    {id:6,name:'Valorant Elite Series',   game:'Valorant',       start:'2025-09-10',end:'2025-09-20',prize:60000, status:'Completed'},
+    {id:7,name:'PUBG Grand Prix',         game:'PUBG Mobile',    start:'2026-01-05',end:'2026-01-15',prize:120000,status:'Completed'},
+    {id:8,name:'Valorant World Qualifier',game:'Valorant',       start:'2026-03-01',end:'2026-03-10',prize:200000,status:'Ongoing'},
+    {id:9,name:'COD Winter Invitational', game:'Call of Duty MW',start:'2026-04-01',end:'2026-04-10',prize:90000, status:'Upcoming'},
+    {id:10,name:'FIFA Super Cup 2026',    game:'FIFA 25',        start:'2026-05-01',end:'2026-05-10',prize:40000, status:'Upcoming'},
+  ],
+  matches:[
+    {id:1,t1:'Alpha Squad',   t2:'Blade Runners', t:1,s1:18,s2:11,winner:'Alpha Squad',   date:'12 Jan 2025',venue:'Online Arena A'},
+    {id:2,t1:'Storm Chasers', t2:'Night Wolves',  t:1,s1:22,s2:9, winner:'Storm Chasers', date:'13 Jan 2025',venue:'Online Arena B'},
+    {id:3,t1:'Zero Protocol', t2:'Ghost Unit',    t:2,s1:15,s2:12,winner:'Zero Protocol', date:'7 Mar 2025', venue:'LAN Center Karachi'},
+    {id:4,t1:'Turbo Force',   t2:'Lazor Squad',   t:2,s1:10,s2:16,winner:'Lazor Squad',   date:'8 Mar 2025', venue:'LAN Center Karachi'},
+    {id:5,t1:'Storm Brigade', t2:'Void Breakers', t:3,s1:20,s2:8, winner:'Storm Brigade', date:'3 Apr 2025', venue:'Gaming Hub Lahore'},
+    {id:6,t1:'Alpha Squad',   t2:'Storm Chasers', t:4,s1:25,s2:14,winner:'Alpha Squad',   date:'17 Jun 2025',venue:'Online Arena A'},
+    {id:7,t1:'Blade Runners', t2:'Zero Protocol', t:5,s1:9, s2:19,winner:'Zero Protocol', date:'3 Aug 2025', venue:'LAN Center Islamabad'},
+    {id:8,t1:'Ghost Unit',    t2:'Turbo Force',   t:6,s1:17,s2:13,winner:'Ghost Unit',    date:'12 Sep 2025',venue:'Online Arena C'},
+    {id:9,t1:'Lazor Squad',   t2:'Storm Brigade', t:7,s1:21,s2:15,winner:'Lazor Squad',   date:'7 Jan 2026', venue:'LAN Center Lahore'},
+    {id:10,t1:'Void Breakers',t2:'Alpha Squad',   t:8,s1:12,s2:23,winner:'Alpha Squad',   date:'3 Mar 2026', venue:'Online Arena A'},
+  ],
+  leaderboard:[
+    {team:'Alpha Squad',   wins:3,losses:0,points:66,avg:22.0},
+    {team:'Lazor Squad',   wins:2,losses:0,points:37,avg:18.5},
+    {team:'Zero Protocol', wins:2,losses:0,points:34,avg:17.0},
+    {team:'Storm Chasers', wins:1,losses:1,points:36,avg:18.0},
+    {team:'Storm Brigade', wins:1,losses:1,points:35,avg:17.5},
+    {team:'Ghost Unit',    wins:1,losses:1,points:29,avg:14.5},
+    {team:'Turbo Force',   wins:0,losses:2,points:23,avg:11.5},
+    {team:'Blade Runners', wins:0,losses:2,points:20,avg:10.0},
+    {team:'Void Breakers', wins:0,losses:2,points:20,avg:10.0},
+    {team:'Night Wolves',  wins:0,losses:1,points:9, avg:9.0},
+  ]
+};
+
+// ── NAV ───────────────────────────────────────────────────────
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg,err=false){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.toggle('err',err);
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDashboard(){
+  // standings mini
+  const posMarkers=['#b7860d','#94a3b8','#c2844a','#d1cfc8','#d1cfc8'];
+  document.getElementById('dash-standings').innerHTML=
+    db.leaderboard.slice(0,5).map((r,i)=>`
+      <div class="mini-lb-row">
+        <div class="mini-lb-pos">${i+1}</div>
+        <div class="mini-lb-team">
+          <span style="display:inline-block;width:3px;height:12px;border-radius:1px;background:${posMarkers[i]};margin-right:8px;vertical-align:middle"></span>
+          ${r.team}
+        </div>
+        <div class="mini-lb-stats">
+          <span class="mini-lb-w">${r.wins}W</span>
+          <span class="mini-lb-pts">${r.points}pts</span>
+        </div>
+      </div>`).join('');
+
+  // prizes
+  const sorted=[...db.tournaments].sort((a,b)=>b.prize-a.prize).slice(0,5);
+  const max=sorted[0].prize;
+  const barColors=['#1a4fa8','#7c3aed','#1a6b3c','#92400e','#b91c1c'];
+  document.getElementById('dash-prizes').innerHTML=
+    sorted.map((t,i)=>`
+      <div class="prize-row">
+        <div class="prize-label">${t.name.split(' ').slice(0,3).join(' ')}</div>
+        <div class="prize-bar-wrap">
+          <div class="prize-bar-fill" style="width:${(t.prize/max*100).toFixed(1)}%;background:${barColors[i]}"></div>
+        </div>
+        <div class="prize-amount">$${(t.prize/1000).toFixed(0)}K</div>
+      </div>`).join('');
+}
+
+// ── LEADERBOARD ───────────────────────────────────────────────
+function renderLeaderboard(){
+  document.getElementById('lb-body').innerHTML=
+    db.leaderboard.map((r,i)=>{
+      const zoneClass = i<3?'qualify-zone': i>=8?'dropzone':'';
+      const played = r.wins+r.losses;
+      return `<tr class="${zoneClass}">
+        <td class="pos">${i+1}</td>
+        <td class="team-name">${r.team}</td>
+        <td class="num">${played}</td>
+        <td class="win-cell">${r.wins}</td>
+        <td class="loss-cell">${r.losses}</td>
+        <td class="num" style="font-weight:700;color:var(--ink)">${r.points}</td>
+        <td class="num">${r.avg}</td>
+      </tr>`;
+    }).join('');
+}
+
+// ── PLAYERS ───────────────────────────────────────────────────
+let filteredPlayers=[];
+function getPlayerTeam(pid){
+  const tp=db.teamPlayers.find(t=>t.pid===pid);
+  if(!tp)return{name:'—',role:'—'};
+  const t=db.teams.find(t=>t.id===tp.tid);
+  return{name:t?t.name:'—',role:tp.role};
+}
+function renderPlayers(list){
+  document.getElementById('players-body').innerHTML=list.map(p=>{
+    const t=getPlayerTeam(p.id);
+    return `<tr>
+      <td class="num" style="color:var(--faint);font-size:12px">${p.id}</td>
+      <td class="team-name" style="font-family:'DM Mono',monospace;font-size:13px">${p.username}</td>
+      <td>${p.full_name}</td>
+      <td style="color:var(--ink2)">${p.country}</td>
+      <td><span class="rank-badge ${p.rank}">${p.rank}</span></td>
+      <td style="color:var(--ink2)">${t.name}</td>
+      <td style="color:var(--muted);font-size:12px">${t.role}</td>
+    </tr>`;
+  }).join('');
+}
+function filterPlayers(){
+  const q=document.getElementById('player-search').value.toLowerCase();
+  const r=document.getElementById('rank-filter').value;
+  const c=document.getElementById('country-filter').value;
+  filteredPlayers=db.players.filter(p=>
+    (!q||(p.username.toLowerCase().includes(q)||p.full_name.toLowerCase().includes(q)))&&
+    (!r||p.rank===r)&&(!c||p.country===c));
+  renderPlayers(filteredPlayers);
+}
+function initPlayers(){
+  filteredPlayers=[...db.players];
+  const countries=[...new Set(db.players.map(p=>p.country))].sort();
+  const cf=document.getElementById('country-filter');
+  countries.forEach(c=>{const o=document.createElement('option');o.textContent=c;cf.appendChild(o);});
+  renderPlayers(filteredPlayers);
+}
+
+// ── TOURNAMENTS ───────────────────────────────────────────────
+function renderTournaments(){
+  document.getElementById('tour-grid').innerHTML=db.tournaments.map(t=>`
+    <div class="tour-card">
+      <div class="tour-card-top">
+        <span class="status ${t.status}">${t.status}</span>
+        <span class="tour-id">#${t.id}</span>
+      </div>
+      <div class="tour-name">${t.name}</div>
+      <div class="tour-game">${t.game}</div>
+      <div class="tour-dates">${t.start} → ${t.end}</div>
+      <div class="tour-divider"></div>
+      <div class="tour-prize">$${t.prize.toLocaleString()}<span>prize pool</span></div>
+    </div>`).join('');
+}
+
+// ── MATCHES ───────────────────────────────────────────────────
+function renderMatches(){
+  document.getElementById('matches-list').innerHTML=db.matches.map(m=>{
+    const tour=db.tournaments.find(t=>t.id===m.t);
+    const h1won=m.winner===m.t1;
+    return `<div class="fixture">
+      <div class="fixture-header">
+        <span class="fixture-tourney">${tour?tour.name:''}</span>
+        <span class="fixture-date">${m.date}</span>
+      </div>
+      <div class="fixture-body">
+        <div class="fix-team home ${h1won?'winner':''}">${m.t1}</div>
+        <div class="fix-score">
+          <span class="fix-num ${h1won?'win-score':'loss-score'}">${m.s1}</span>
+          <span class="fix-dash">—</span>
+          <span class="fix-num ${!h1won?'win-score':'loss-score'}">${m.s2}</span>
+        </div>
+        <div class="fix-team away ${!h1won?'winner':''}">${m.t2}</div>
+      </div>
+      <div class="fixture-footer">
+        <span class="fix-venue">${m.venue}</span>
+        <span class="fix-dot">·</span>
+        <span class="fix-venue">Winner: <strong>${m.winner}</strong></span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── REGISTER ─────────────────────────────────────────────────
+function populateEditSelect(){
+  const sel=document.getElementById('edit-player');
+  sel.innerHTML='<option value="">— choose player —</option>';
+  db.players.forEach(p=>{
+    const o=document.createElement('option');
+    o.value=p.id;o.textContent=`${p.username} (${p.full_name})`;sel.appendChild(o);
+  });
+}
+function loadPlayer(){
+  const id=+document.getElementById('edit-player').value;
+  if(!id)return;
+  const p=db.players.find(p=>p.id===id);
+  if(p)document.getElementById('edit-rank').value=p.rank;
+}
+function registerPlayer(){
+  const u=document.getElementById('reg-username').value.trim();
+  const n=document.getElementById('reg-name').value.trim();
+  const e=document.getElementById('reg-email').value.trim();
+  const c=document.getElementById('reg-country').value.trim();
+  const r=document.getElementById('reg-rank').value;
+  if(!u||!n||!e){toast('Please fill all required fields',true);return;}
+  if(db.players.find(p=>p.username===u)){toast('Username already exists!',true);return;}
+  const newP={id:db.players.length+1,username:u,full_name:n,email:e,country:c||'Unknown',rank:r};
+  db.players.push(newP);
+  document.getElementById('s-players').textContent=db.players.length;
+  ['reg-username','reg-name','reg-email','reg-country'].forEach(id=>document.getElementById(id).value='');
+  populateEditSelect();
+  toast(`Player "${u}" registered`);
+}
+function updatePlayer(){
+  const id=+document.getElementById('edit-player').value;
+  const r=document.getElementById('edit-rank').value;
+  if(!id){toast('Select a player first',true);return;}
+  const p=db.players.find(p=>p.id===id);
+  if(p){p.rank=r;renderPlayers(db.players);toast(`${p.username} updated to ${r}`);}
+}
+function deletePlayer(){
+  const id=+document.getElementById('edit-player').value;
+  if(!id){toast('Select a player first',true);return;}
+  const p=db.players.find(p=>p.id===id);
+  if(!p)return;
+  if(!confirm(`Delete player "${p.username}"?`))return;
+  db.players=db.players.filter(p=>p.id!==id);
+  document.getElementById('s-players').textContent=db.players.length;
+  renderPlayers(db.players);
+  populateEditSelect();
+  toast(`${p.username} removed`);
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+renderDashboard();
+renderLeaderboard();
+initPlayers();
+renderTournaments();
+renderMatches();
+populateEditSelect();
+</script>
+</body>
+</html>
